@@ -84,21 +84,32 @@ class Account extends CI_Controller {
 	    	}
 	    	else  
 	    	{
-	    		$user = new User();
+	    		//captcha stuff
+	    		include_once $_SERVER['DOCUMENT_ROOT'] . '/Connect4/securimage/securimage.php';
+	 
+				$securimage = new Securimage();
+
+				if ($securimage->check($_POST['captcha_code']) == false) {
+					$data['err'] = "The security code entered was incorrect.<br /><br />";
+					$this->load->view('account/newForm', $data);
+				}
+				else{
+	    			$user = new User();
 	    		 
-	    		$user->login = $this->input->post('username');
-	    		$user->first = $this->input->post('first');
-	    		$user->last = $this->input->post('last');
-	    		$clearPassword = $this->input->post('password');
-	    		$user->encryptPassword($clearPassword);
-	    		$user->email = $this->input->post('email');
+	    			$user->login = $this->input->post('username');
+	    			$user->first = $this->input->post('first');
+	    			$user->last = $this->input->post('last');
+	    			$clearPassword = $this->input->post('password');
+	    			$user->encryptPassword($clearPassword);
+	    			$user->email = $this->input->post('email');
 	    		
-	    		$this->load->model('user_model');
+	    			$this->load->model('user_model');
 	    		 
 	    		
-	    		$error = $this->user_model->insert($user);
-	    		
-	    		$this->load->view('account/loginForm');
+	    			$error = $this->user_model->insert($user);
+	    			
+	    			$this->load->view('account/loginForm');
+	    		}
 	    	}
     }
 

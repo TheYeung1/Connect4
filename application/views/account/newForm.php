@@ -26,6 +26,11 @@
 		</script>
 	</head> 
 <body>  
+	<?php
+	if(isset($err)){
+		echo $err;
+	}
+	?>
 	<h1>New Account</h1>
 <?php 
 	echo form_open('account/createNew');
@@ -47,9 +52,15 @@
 	echo form_label('Email');
 	echo form_error('email');
 	echo form_input('email',set_value('email'),"required");
+	
+	?>
+	<img id="captcha" src="../../securimage/securimage_show.php" alt="CAPTCHA Image" />
+	<input type="text" name="captcha_code" size="10" maxlength="6" />
+	<a href="#" onclick="document.getElementById('captcha').src = '../../securimage/securimage_show.php?' + Math.random(); return false"> Different Image </a>	
+	<?php
 	echo form_submit('submit', 'Register');
 	echo form_close();
-?>	
+	?>
 </body>
 
 </html>

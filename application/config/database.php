@@ -47,11 +47,13 @@
   
 $active_group = 'default';
 $active_record = TRUE;
+//Oscar Local
+//$db['default']['hostname'] = '127.0.0.1';
+$db['default']['username'] = 'root';
+$db['default']['password'] = 'Jnem7777';
+$db['default']['database'] = 'Connect4';
 
-$db['default']['hostname'] = '127.0.0.1';
-$db['default']['username'] = 'connect4';
-$db['default']['password'] = 'connect4';
-$db['default']['database'] = 'connect4';  
+  
 $db['default']['dbdriver'] = 'mysql';
 $db['default']['dbprefix'] = '';
 $db['default']['pconnect'] = TRUE;
