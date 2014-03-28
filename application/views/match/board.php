@@ -50,7 +50,11 @@
 		});
 	
 	</script>
+
+	<link rel="stylesheet" type="text/css" href="<?= base_url() ?>css/style.css">
 	</head> 
+
+
 <body>  
 	<h1>Game Area</h1>
 
@@ -67,16 +71,36 @@
 	?>
 	</div>
 	
-<?php 
-	
-	echo form_textarea('conversation');
-	
-	echo form_open();
-	echo form_input('msg');
-	echo form_submit('Send','Send');
-	echo form_close();
-	
-?>
+	<div id="gameboard">
+		<p id="name"> Connect 4! </p>
+		<!--Tiles go here -->
+		<div id="buffer">
+			<?php
+				for($i=0; $i<8; $i++){
+					if($i==0){
+						echo "<div class='inner' id='controller_tile'><img id='img' src=".  base_url() . "images/arrow1.png /></div>";
+					}
+					else{
+						echo "<div id='controller_tile'><img id='img' src=" . base_url() . "images/arrow1.png /></div>";
+					}
+				}
+			?>
+		</div>
+		<?php
+		for($i=0; $i<64; $i++){
+			if($i%8==0){
+				echo "<div class='inner' id='tile'></div>"; 
+			}
+			else{
+				echo "<div class='outer' id='tile'></div>";
+			}
+		}
+		?>	
+
+
+
+	</div>
+
 	
 	
 	
