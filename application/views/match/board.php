@@ -52,13 +52,22 @@
 					//its the length of the array minus one because rows in the PHP/HTML are indexed starting at 0
 					var row = gamerows[column].length - 1;
 					//get the offset of the dest tile so we know where to stop the animation
-					var position = $('[id="' + row + '"]' + '[data-column="' + column + '"]').position();
+					//we need the positioning of the container element as well, i.e the game div
+					var root_x = $("#buffer").offset().left;
+					var position = $('[id="' + row + '"]' + '[data-column="' + column + '"]').offset();
 					var x = position.left;
 					var y = position.top;
-					//these numbers are seemingly magic but have to do with how the chips position must
-					//be absolute and not relative (get some strange behaviour with relative)
-					$("#chip"+chipcount).animate({ left:x-460 , top:y-195}, 2000, "linear");
+					//now we have to get the offset of the parent tile so we dont really screw up the positioning of the chip
+					var position2 = $(this).offset();
+					var y2 = position2.top;
+					//console.log("x2:  " + x2 + "  y2:   " + y2 );
+					//console.log("x:  " + x + "  y:   " + y );
+					//the constant numbers here are small tweaks to center the chip
+					$("#chip"+chipcount).animate({ left:x-root_x+5 , top:y-y2+5}, 2000, "linear");
+					//now we have to send out what just happened so that the other player can get see it on their board
 
+					//the idea here oscar is to send out what just happened to the database similar to what happens in the form js function near the end
+					//also keep the everytime thing but instead of getMsg we just get last move from db! and then apply it!
 
 
 
