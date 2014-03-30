@@ -30,17 +30,20 @@ class Board extends CI_Controller {
 	    	$invite = $this->invite_model->get($user->invite_id);
 	    	
 	    	if ($user->user_status_id == User::WAITING) {
+	    		$data['player1'] = $user->invite_id;
+	    		$data['player2'] = $invite->user2_id;
 	    		$invite = $this->invite_model->get($user->invite_id);
 	    		$otherUser = $this->user_model->getFromId($invite->user2_id);
 	    	}
 	    	else if ($user->user_status_id == User::PLAYING) {
 	    		$match = $this->match_model->get($user->match_id);
+	    		$data['player1']=$match->user1_id;
+	    		$data['player2'] = $match->user2_id;
 	    		if ($match->user1_id == $user->id)
 	    			$otherUser = $this->user_model->getFromId($match->user2_id);
 	    		else
 	    			$otherUser = $this->user_model->getFromId($match->user1_id);
 	    	}
-	    	
 	    	$data['user']=$user;
 	    	$data['otherUser']=$otherUser;
 	    	
