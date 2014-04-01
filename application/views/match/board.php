@@ -16,68 +16,140 @@
 		var myid = "<?= $user->id ?>";
 		var otherid = "<?= $otherUser->id ?>";
 		var chipcount = 0;
-		var gamerows = [[], [], [], [], [], [], [], []]
+		//should actually be columns
+		var gamecolumns = [[], [], [], [], [], [], [], []]
 		//player1 gets to go first 
 		$(document).ready(function(){
 			//we should colour the selectors red to indicate that its not currently their turn
 			if(myid!=player1){
 				$('.controller_tile').css("background-color", "red");
 			}
-			//add the event handlers to the controller tiles
+			//add the event handlers to the controller tiles we only allow one click 
+			//we will re-enable this event handler later after we update the board with the
+			//other users move
+			else{
+				$('.controller_tile').each(function(){
+					$(this).click(function(){clicky(this);});
+					});
+			}
+		});
+
+		//the workhorse of the click event handler
+		function clicky(item){
+			//we gotta take the event handlers of the rest of the chips
 			$('.controller_tile').each(function(){
-				$(this).click(function(){
-					//get the column this chip will be placed in
-					var column = $(this).attr("id");
-					//create a new chip and add it to game array. make sure it is associated with a player
-					//another chip the number uniquely identifies each chip which is basically just a div.
-					chipcount++;
-					var chip  = new Chip(myid);
-					gamerows[column].push(chip);
+				$(this).off('click');
+			});
 
-					//var offset = $(this).offset();
-					//var x = offset.left;
-					//var y = offset.top;
+
+			//get the column this chip will be placed in
+
+			var column = $(item).attr("id");
+
+			//before we animate the chip we have to figure out what row of the column it blongs in
+			//its the length of the array minus one because rows in the PHP/HTML are indexed starting at 0
+			var row = gamecolumns[column].length;
+			var where = "dispatcher";
+			animate(row, column, item, where);
+
+			//now we have to send out what just happened so that the other player can get see it on their board
+
+			//the idea here oscar is to send out what just happened to the database similar to what happens in the form js function near the end
+			//also keep the everytime thing but instead of getMsg we just get last move from db! and then apply it!
+			var url = '<?=base_url() ?>board/sendMove';
+
+			//send the JSON get request and populate the database with the new move
+			$.get(url,{row: row, column: column});
+			//now we have to change the selectors to red for the user telling them its not their turn anymore
+			$('.controller_tile').css('background-color', 'red');
+			
+		}
+		//animates the chip
+		//item is the top selector jquery object (the coloured circles at the top)
+
+		function animate(row,column,item,where){
+
+			chipcount++;
+			var chip  = new Chip(myid);
+			gamecolumns[column].push(chip);
+
 					
-					//decide on the colour of the chip
-					if(myid == player1){
-						var color = 'yellow';
+			//decide on the colour of the chip
+			if(where=="dispatcher"){
+				if(myid == player1){
+					var color = 'yellow';
+				}
+				else{
+					var color = 'red';
+				}
+			}
+			//request came from not knowing about a move so the colours are reversed
+			else{
+				if(myid == player1){
+					var color = 'red';
+				}
+				else{
+					var color = 'yellow';
+				}	
+
+			}
+
+			$("<div></div>",{id:"chip" + chipcount}).appendTo(item);
+			$("#chip"+chipcount).css({"background-color":color, "border-radius":"100%", "width":"40px", "height":"40px", "position":"absolute"});
+
+			var root_x = $("#buffer").offset().left;
+			var position = $('[id="' + row + '"]' + '[data-column="' + column + '"]').offset();
+			var x = position.left;
+			var y = position.top;
+			//now we have to get the offset of the parent tile so we dont really screw up the positioning of the chip
+			var position2 = $(item).offset();
+			var y2 = position2.top;
+			//the constant numbers here are small tweaks to center the chip
+			$("#chip"+chipcount).animate({ left:x-root_x+5 , top:y-y2+5}, 2000, "linear");
+
+		}
+
+
+		//here is where we sync with the database
+		$(function(){
+			$('body').everyTime(5000,function(){
+				$.getJSON('<?= base_url() ?>board/getMatchUpdate',function(data,text,jqZHR){
+					//check if data is not null
+					if(data && !(data.status)){
+						var row = data.row;
+						var column = data.column;
+						//now we check if we were already aware of this move
+						var column_array = gamecolumns[column];
+						for(var i = 0; i<column_array.length; i++){}
+						if(i <= row){
+							//want to add it to our board
+							var item = $('.controller_tile[id="' + column + '"]');
+							//tells click event handler where the request came from
+							var where="checker";
+							animate(row,column,item,where);
+							//ok so we have added it to the board, now we have to tell the current user that it is their turn by changing their selectors to green and adding the event handlers
+							$('.controller_tile').css("background-color", "green");
+							$('.controller_tile').each(function(){
+							$(this).click(function(){clicky(this);});
+							});
+
+
+						}
+						else{
+							//dont want to add it because we were already aware of this move
+						}
 					}
-					else{
-						var color = 'red';
-					}
-
-					$("<div></div>",{id:"chip" + chipcount}).appendTo(this);
-					$("#chip"+chipcount).css({"background-color":color, "border-radius":"100%", "width":"40px", "height":"40px", "position":"absolute"});
-					//before we animate the chip we have to figure out what row of the column it blongs in
-					//its the length of the array minus one because rows in the PHP/HTML are indexed starting at 0
-					var row = gamerows[column].length - 1;
-					//get the offset of the dest tile so we know where to stop the animation
-					//we need the positioning of the container element as well, i.e the game div
-					var root_x = $("#buffer").offset().left;
-					var position = $('[id="' + row + '"]' + '[data-column="' + column + '"]').offset();
-					var x = position.left;
-					var y = position.top;
-					//now we have to get the offset of the parent tile so we dont really screw up the positioning of the chip
-					var position2 = $(this).offset();
-					var y2 = position2.top;
-					//console.log("x2:  " + x2 + "  y2:   " + y2 );
-					//console.log("x:  " + x + "  y:   " + y );
-					//the constant numbers here are small tweaks to center the chip
-					$("#chip"+chipcount).animate({ left:x-root_x+5 , top:y-y2+5}, 2000, "linear");
-					//now we have to send out what just happened so that the other player can get see it on their board
-
-					//the idea here oscar is to send out what just happened to the database similar to what happens in the form js function near the end
-					//also keep the everytime thing but instead of getMsg we just get last move from db! and then apply it!
-
-
 
 				});
-			});
+			})
 		});
-			
 
-		$(function(){
-			$('body').everyTime(2000,function(){
+
+		//message stuff i am probably going to keep in because it is kinda cool to have a message board
+
+		//////////////////////////////////////////////////////////////////////START MESSAGE STUFF ////////////////////////////////////////////////////////////////////////////////
+		/*$(function(){
+			$('body').everyTime(1000,function(){
 					if (status == 'waiting') {
 						$.getJSON('<?= base_url() ?>arcade/checkInvitation',function(data, text, jqZHR){
 								if (data && data.status=='rejected') {
@@ -125,6 +197,8 @@
 
 
 		});
+	*/
+	////////////////////////////////////////////////////////////////////////////////////END MESSAGE STUFF //////////////////////////////////////////////////////////////////////////
 	
 	</script>
 
@@ -147,7 +221,18 @@
 			echo "Wating on " . $otherUser->login;
 	?>
 	</div>
+<!--
+	<?php 
 	
+	//echo form_textarea('conversation');
+	
+	//echo form_open();
+	//echo form_input('msg');
+	//echo form_submit('Send','Send');
+	//echo form_close();
+	
+	?>
+-->	
 	<div id="gameboard">
 		<p id="name"> Connect 4! </p>
 		<!--Tiles go here -->

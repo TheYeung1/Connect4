@@ -98,6 +98,69 @@ class Board extends CI_Controller {
 		error:
 			echo json_encode(array('status'=>'failure','message'=>$errormsg));
  	}
+ 	function sendMove(){
+
+ 		//get the row and columns posted via get
+ 		$row = $this->input->get("row");
+ 		$column = $this->input->get("column");
+
+ 		//load up the all important models
+ 		$this->load->model("match_model");
+ 		$this->load->model("user_model");
+
+ 		//get the user to get the game id
+ 		$user = $_SESSION['user'];
+ 		$user = $this->user_model->getExclusive($user->login);
+ 		if($user->user_status_id != User::PLAYING){
+ 			$errormsg = "Not In Playing State!";
+ 			goto error;
+ 		}
+ 		$match = $this->match_model->get($user->match_id);
+ 		$id = $match->id;
+ 		//now actually do the updating of the match
+
+ 		$this->match_model->updateMatch($row,$column,$id);
+
+ 		echo json_encode(array('status'=>'success'));
+ 		return;
+
+ 		error:
+ 			echo json_encode(array('status'=>'failure', 'message'=>$errormsg));
+
+
+
+
+ 	}
+ 	function getMatchUpdate(){
+
+ 		$this->load->model("match_model");
+ 		$this->load->model("user_model");
+
+ 		//get the user to get the game id
+ 		$user = $_SESSION['user'];
+ 		$user = $this->user_model->getExclusive($user->login);
+ 		if($user->user_status_id != User::PLAYING){
+ 			$errormsg = "Not In Playing State!";
+ 			goto error;
+ 		}
+ 		$match = $this->match_model->get($user->match_id);
+ 		$id = $match->id;
+ 		$match = $this->match_model->getMove($id);
+ 		if(is_null($match)){
+ 			$errormsg = "Database Error, Cannot Update Game Board";
+ 			goto error;
+ 		}
+ 		
+ 		else{
+ 			$encoded_array = $match->board_state;
+ 			echo $encoded_array;
+ 			return;
+ 		}
+ 		
+ 		error:
+ 			echo json_encode(array('status'=>'failure', 'message'=>$errormsg));
+
+ 	}
  
 	function getMsg() {
  		$this->load->model('user_model');
