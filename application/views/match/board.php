@@ -64,14 +64,56 @@
 			$('.controller_tile').css('background-color', 'red');
 			
 		}
+
+		/*
+		* Given a chip, checks if the given chip is a winning chip
+		*/
+
+		function checkForWin(chip){
+
+			playerId = chip.getPlayerId();
+			return winInDirection(parseInt(chip.row), parseInt(chip.column), 0, 1, playerId) || // check to the right
+				   winInDirection(parseInt(chip.row), parseInt(chip.column), 0, -1, playerId) || // check to the left
+				   winInDirection(parseInt(chip.row), parseInt(chip.column), -1, 0, playerId) || // check down
+				   winInDirection(parseInt(chip.row), parseInt(chip.column), 1, 1, playerId) || // check up and right
+				   winInDirection(parseInt(chip.row), parseInt(chip.column), 1, -1, playerId) || // check up and left
+				   winInDirection(parseInt(chip.row), parseInt(chip.column), -1, -1, playerId) || // check down and left
+				   winInDirection(parseInt(chip.row), parseInt(chip.column), -1, 1, playerId); // check down and right
+			
+		}
+
+		/*
+		* Given the current position of the chip, and the directions to change in (dRow, dCol) and the player,
+		* cheacks if the player has connected 4 in the given direction
+		*/
+		function winInDirection(currRow, currColumn, dRow, dCol, player){
+			streak = 1;
+			
+
+			while (currColumn + dCol >= 0 && currColumn + dCol < gamecolumns.length 
+				&& currRow + dRow >= 0 && currRow + dRow <= 7 
+				&& gamecolumns[currColumn + dCol].length > (currRow + dRow)
+				&& gamecolumns[currColumn + dCol][currRow + dRow].getPlayerId() == player){
+				streak++;
+				currRow = currRow + dRow;
+				currColumn = currColumn + dCol;
+			}
+			return streak >= 4;
+
+		}
+
 		//animates the chip
 		//item is the top selector jquery object (the coloured circles at the top)
 
 		function animate(row,column,item,where){
 
 			chipcount++;
-			var chip  = new Chip(myid);
+			var chip  = new Chip(myid, row, column);
 			gamecolumns[column].push(chip);
+
+			if (checkForWin(chip)){
+				console.log("win!");
+			}
 
 					
 			//decide on the colour of the chip
@@ -109,6 +151,7 @@
 
 		}
 
+		
 
 		//here is where we sync with the database
 		$(function(){
@@ -143,6 +186,7 @@
 				});
 			})
 		});
+
 
 
 		//message stuff i am probably going to keep in because it is kinda cool to have a message board

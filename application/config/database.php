@@ -49,10 +49,16 @@ $active_group = 'default';
 $active_record = TRUE;
 //Oscar Local
 //$db['default']['hostname'] = '127.0.0.1';
-$db['default']['username'] = 'root';
-$db['default']['password'] = 'Jnem7777';
-$db['default']['database'] = 'Connect4';
+// $db['default']['username'] = 'root';
+// $db['default']['password'] = 'Jnem7777';
+// $db['default']['database'] = 'Connect4';
 
+
+//Winston Local
+$db['default']['hostname'] = 'localhost:3306';
+$db['default']['username'] = 'root';
+$db['default']['password'] = 'root';
+$db['default']['database'] = 'connect4';
   
 $db['default']['dbdriver'] = 'mysql';
 $db['default']['dbprefix'] = '';
