@@ -30,9 +30,8 @@ class Board extends CI_Controller {
 	    	$invite = $this->invite_model->get($user->invite_id);
 	    	
 	    	if ($user->user_status_id == User::WAITING) {
-	    		$data['player1'] = $user->invite_id;
-	    		$data['player2'] = $invite->user2_id;
-	    		$invite = $this->invite_model->get($user->invite_id);
+	    		$data['player1'] = $invite->user2_id;
+	    		$data['player2'] = $invite->user1_id;
 	    		$otherUser = $this->user_model->getFromId($invite->user2_id);
 	    	}
 	    	else if ($user->user_status_id == User::PLAYING) {
@@ -127,10 +126,44 @@ class Board extends CI_Controller {
  		error:
  			echo json_encode(array('status'=>'failure', 'message'=>$errormsg));
 
+ 	}
+
+ 	function endMatch(){
 
 
+ 		$status = $this->input->get('status');
+
+ 		$this->load->model("match_model");
+ 		$this->load->model("user_model");
+
+
+
+ 		//get the user to get the game id
+ 		$user = $_SESSION['user'];
+ 		$user = $this->user_model->getExclusive($user->login);
+ 		if($user->user_status_id != User::PLAYING){
+ 			$errormsg = "Not In Playing State!";
+ 			echo json_encode(array('status'=>'failure', 'message'=>$errormsg));
+ 			return;
+ 		}
+
+ 		$this->db->trans_begin();
+
+ 		$this->user_model->updateStatus($match->user1_id, User::AVAILABLE);
+ 		$this->user_model->updateStatus($match->user2_id, User::AVAILABLE);
+
+ 		
+ 		$match = $this->match_model->get($user->match_id);
+ 		$this->match_model->updateStatus($match->id, $status);
+
+ 		if ($this->db->trans_status() === FALSE)
+	    		return;
+	    
+	    // if all went well commit changes
+	    $this->db->trans_commit();
 
  	}
+
  	function getMatchUpdate(){
 
  		$this->load->model("match_model");

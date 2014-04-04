@@ -50,7 +50,7 @@
 			//its the length of the array minus one because rows in the PHP/HTML are indexed starting at 0
 			var row = gamecolumns[column].length;
 			var where = "dispatcher";
-			animate(row, column, item, where);
+			animate(row, column, myid, item, where);
 
 			//now we have to send out what just happened so that the other player can get see it on their board
 
@@ -105,14 +105,31 @@
 		//animates the chip
 		//item is the top selector jquery object (the coloured circles at the top)
 
-		function animate(row,column,item,where){
+		function animate(row,column,playerid, item,where){
 
 			chipcount++;
-			var chip  = new Chip(myid, row, column);
+			var chip  = new Chip(playerid, row, column);
 			gamecolumns[column].push(chip);
 
 			if (checkForWin(chip)){
-				console.log("win!");
+				if (playerid == myid){
+					$('#winMessage').text('You win!');
+					status = (myid == player1) ? 2 : 3;
+
+					var url = '<?=base_url() ?>board/endMatch';
+					$.get(url,{status: status});
+
+
+				} else {
+					$('#winMessage').text('You Lose!');
+				}
+				$('#winBox').show();
+
+				// disable further clicks
+				$('.controller_tile').each(function(){
+				$(this).off('click');
+			});
+
 			}
 
 					
@@ -155,7 +172,7 @@
 
 		//here is where we sync with the database
 		$(function(){
-			$('body').everyTime(5000,function(){
+			$('body').everyTime(1000,function(){
 				$.getJSON('<?= base_url() ?>board/getMatchUpdate',function(data,text,jqZHR){
 					//check if data is not null
 					if(data && !(data.status)){
@@ -169,7 +186,7 @@
 							var item = $('.controller_tile[id="' + column + '"]');
 							//tells click event handler where the request came from
 							var where="checker";
-							animate(row,column,item,where);
+							animate(row,column,otherid,item,where);
 							//ok so we have added it to the board, now we have to tell the current user that it is their turn by changing their selectors to green and adding the event handlers
 							$('.controller_tile').css("background-color", "green");
 							$('.controller_tile').each(function(){
@@ -277,6 +294,12 @@
 	
 	?>
 -->	
+
+	<div id="winBox">
+		<h1 id="winMessage"></h1>
+		<a href="<?= base_url() ?>arcade/">Go Home</a>
+	</div>
+
 	<div id="gameboard">
 		<p id="name"> Connect 4! </p>
 		<!--Tiles go here -->

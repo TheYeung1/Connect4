@@ -49,3 +49,7 @@
 			height: 35px;
 
 		}
+
+		#winBox{
+			display:none;
+		}
