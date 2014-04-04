@@ -65,6 +65,16 @@
 			
 		}
 
+		function checkForTie(){
+			for (var i = 0; i < gamecolumns.length; i++){
+				if (gamecolumns[i].length < 8){
+					return false;
+				} 
+			}
+
+			return true;
+		}
+
 		/*
 		* Given a chip, checks if the given chip is a winning chip
 		*/
@@ -130,6 +140,19 @@
 				$(this).off('click');
 			});
 
+			}
+
+			if (checkForTie()){
+				$('#winMessage').text('Tie!');
+				$('#winBox').show();
+
+				// disable further clicks
+				$('.controller_tile').each(function(){
+					$(this).off('click');
+				}
+
+				var url = '<?= base_url() ?>/board/endMatch';
+				$.get(url, {status:4});
 			}
 
 					

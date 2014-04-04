@@ -55,9 +55,9 @@ $active_record = TRUE;
 
 
 //Winston Local
-$db['default']['hostname'] = 'localhost:3306';
+$db['default']['hostname'] = 'localhost';
 $db['default']['username'] = 'root';
-$db['default']['password'] = 'root';
+$db['default']['password'] = '';
 $db['default']['database'] = 'connect4';
   
 $db['default']['dbdriver'] = 'mysql';
