@@ -149,9 +149,9 @@
 				// disable further clicks
 				$('.controller_tile').each(function(){
 					$(this).off('click');
-				}
+				});
 
-				var url = '<?= base_url() ?>/board/endMatch';
+				var url = '<?= base_url() ?>board/endMatch';
 				$.get(url, {status:4});
 			}
 

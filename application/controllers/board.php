@@ -149,11 +149,10 @@ class Board extends CI_Controller {
 
  		$this->db->trans_begin();
 
+ 		$match = $this->match_model->get($user->match_id);
  		$this->user_model->updateStatus($match->user1_id, User::AVAILABLE);
  		$this->user_model->updateStatus($match->user2_id, User::AVAILABLE);
 
- 		
- 		$match = $this->match_model->get($user->match_id);
  		$this->match_model->updateStatus($match->id, $status);
 
  		if ($this->db->trans_status() === FALSE)
