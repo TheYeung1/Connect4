@@ -1,0 +1,29 @@
+Contributors: Oscar Menjivar #998157514 + Winston Yeung #999014276
+
+
+The login and displaying users portion of our project is the same as given in the starter code
+The only major change was to what exactly gets displayed when two users are in a game
+Instead of a message box, we now see a game board for connect4.
+
+
+The way the gameboard works is that each white tile is a div with an associated row and column number. At the top of the
+game board there are selectors that allow the user to select which column they want to place their chip in. When a user
+clicks on a selector a div is created on the DOM and is animated to the first available row in that column. We then run an
+algorithm to check if there are any wins on the board. Basically check for 4 chips in the same row, column or diagonal that 
+have the same user id associated with it. 
+
+The way we register the opponents move is first by allowing the user to make their move, once they do, they are locked from
+making any other moves, then we pass the row and column number that the chip was placed into php and insert it into the
+database (that is, we only keep track of the most recent move). We have a timer that runs every 2 seconds to retrieve this
+move from the database and pass it into javascript using json, we then ensure that we werent already aware of this move 
+by checking if a chip exists in the same location in our global nested array 
+(this array just has 8 arrays inside it, each one representing a column, and each entry within these arrays represents a 
+row). If we were not already aware of the move, we animate it and add it to our global array.
+
+The key thing to note is that we do not need transactions for updating the database with the most recent move, because
+each user is locked from making any additional moves, until his/her opponent makes their move, so it is 
+guarenteed to be atomic. We keep this lock on moves until the board is fully updated. 
+This is done so there is no danger of overwriting the opponents move. 
+
+
+
